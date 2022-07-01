@@ -2,8 +2,7 @@ import React from 'react';
 import { AppScreen, Text } from "@components"
 import { BleManager } from 'react-native-ble-plx';
 
-
-export const Bluetooth = () => {
+export const Listener = () => {
     const manager = new BleManager();
 
     React.useEffect(() => {
@@ -27,10 +26,8 @@ export const Bluetooth = () => {
             // or other criteria.
             if (device.name === 'TI BLE Sensor Tag' ||
                 device.name === 'SensorTag') {
-
                 // Stop scanning as it's not necessary if you are scanning for one device.
                 manager.stopDeviceScan();
-
                 // Proceed with connection.
             }
         });
@@ -38,7 +35,7 @@ export const Bluetooth = () => {
 
     return (
         <AppScreen>
-            <Text>Bluetooth page</Text>
+            <Text>Listener page</Text>
         </AppScreen>
     )
 }

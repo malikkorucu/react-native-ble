@@ -89,10 +89,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>React Native Typescript uygulamasının fotoğraf çekimi veya resim seçebilmesi için kameranıza erişmesi gerekir. Lütfen gerekli izinleri veriniz.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>React Native Typescript uygulamasının asdf çekimi veya resim seçebilmesi için kameranıza erişmesi gerekir. Lütfen gerekli izinleri veriniz.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>React Native Typescript uygulamasının fotoğraf çekimi veya resim seçebilmesi için kameranıza erişmesi gerekir. Lütfen gerekli izinleri veriniz.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>React Native Typescript uygulaması lokasyon bilgilerinize ihtiyaç duymaktadır. Lütfen gerekli izinleri veriniz.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -146,6 +146,7 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+		<string>bluetooth-le</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
