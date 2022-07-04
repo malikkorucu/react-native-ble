@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useLayoutEffect } from 'react';
-import { Pressable } from 'react-native';
-import { Images } from '@assets';
-import { useSelector } from 'react-redux';
+import React, {useState, useCallback, useLayoutEffect} from 'react';
+import {Pressable} from 'react-native';
+import {Images} from '@assets';
+import {useSelector} from 'react-redux';
 import {
   Text,
   Block,
@@ -14,13 +14,13 @@ import {
   Col,
   AppBottomSheet,
 } from '@components';
-import { requestPermissions, checkPermissions, PermissionsList } from '@utils';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootState, settingsRedux } from '@store';
+import {requestPermissions, checkPermissions, PermissionsList} from '@utils';
+import {useFocusEffect} from '@react-navigation/native';
+import {RootState, settingsRedux} from '@store';
 import Routes from '../../navigation/Routes';
 import useTag from '../../hooks/createTag';
 
-const HomePage = ({ navigation }: any) => {
+const HomePage = ({navigation}: any) => {
   const [isPermission, setIsPermission] = useState(false);
   const [dateVisible, setDateVisible] = useState(false);
   const [bottomSheetVisibility, setBottomSheetVisibility] = useState(false);
@@ -158,6 +158,14 @@ const HomePage = ({ navigation }: any) => {
           title={'Bluetooth LE'}
           onPress={() => navigation.navigate(Routes.BLUETOOTH_SCREEN)}
         />
+
+        <AppButton
+          mb={10}
+          type="primary"
+          title={'Bluetooth Listener'}
+          onPress={() => navigation.navigate(Routes.BLUETOOTH_LISTENER_SCREEN)}
+        />
+
         <Block marginTop={20} center middle>
           <AppIcon name="camera" size={30} color="#900" />
         </Block>

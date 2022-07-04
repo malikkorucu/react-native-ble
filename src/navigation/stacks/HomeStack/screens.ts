@@ -1,5 +1,12 @@
-import { IScreen } from '../Models/IScreen';
-import { Bluetooth, FetchDataPage, FormPage, HomePage } from '@screens';
+import {IScreen} from '../Models/IScreen';
+import {
+  Bluetooth,
+  BluetoothListenerPage,
+  FetchDataPage,
+  FormPage,
+  GoogleNearbyPage,
+  HomePage,
+} from '@screens';
 import routes from '../../Routes';
 
 const Screens = [
@@ -25,6 +32,12 @@ const Screens = [
     title: 'Bluetooth Example',
     name: routes.BLUETOOTH_SCREEN,
     component: Bluetooth,
+    headerShown: true,
+  },
+  {
+    title: 'Bluetooth Listener Example',
+    name: routes.BLUETOOTH_LISTENER_SCREEN,
+    component: BluetoothListenerPage,
     headerShown: true,
   },
 ] as Array<IScreen>;
