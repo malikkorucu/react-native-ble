@@ -10,6 +10,7 @@ import {AppButton, AppFlatList, AppScreen, Block, Text} from '@components';
 import BleManager from 'react-native-ble-manager';
 import ReactNativeBleAdvertiser from 'tp-rn-ble-advertiser';
 import {COLORS, SIZES} from '@theme';
+import {Buffer} from 'buffer';
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
@@ -28,7 +29,7 @@ const BluetoothListenerPage = () => {
     setTimeout(() => {
       ReactNativeBleAdvertiser.startBroadcast();
       setResult('Broadcast started. Sent data: "Hellooo!!! Hear Meeeee !!!!"');
-    }, 500);
+    }, 2000);
 
     // setTimeout(() => {
     //   ReactNativeBleAdvertiser.stopBroadcast();
@@ -60,7 +61,7 @@ const BluetoothListenerPage = () => {
     if (peripheral) {
       peripheral.connected = false;
       peripherals.set(peripheral.id, peripheral);
-      setList([...list, peripherals]);
+      setList([...list, peripheral]);
     }
     console.log('Disconnected from ' + data.peripheral);
   };
@@ -89,17 +90,24 @@ const BluetoothListenerPage = () => {
   };
 
   const handleDiscoverPeripheral = (peripheral: any) => {
-    console.log('Got ble peripheral', peripheral);
+    //console.log('Got ble peripheral', peripheral);
     if (!peripheral.name) {
       peripheral.name = 'NO NAME';
     }
-    console.log('Data: ', peripheral.manufacturerData?.data);
-    if (peripheral.manufacturerData?.data) {
+    console.log('test', peripheral);
+    if (peripheral?.advertising?.manufacturerData) {
+      const text = Buffer.from(
+        peripheral.advertising.manufacturerData.data,
+        'utf-8',
+      );
+
       try {
-        const _data = String.fromCharCode(peripheral.manufacturerData.bytes);
+        const _data = String.fromCharCode(
+          peripheral.advertising.manufacturerData.data,
+        );
         console.log('Received data from ' + peripheral.id + ': ' + _data);
       } catch (error) {
-        console.log('Received Data Error: ', error);
+        //console.log('Received Data Error: ', error);
       }
     }
 
@@ -126,8 +134,25 @@ const BluetoothListenerPage = () => {
             setTimeout(() => {
               /* Test read current RSSI value */
               BleManager.retrieveServices(peripheral.id).then(
-                peripheralData => {
-                  console.log('Retrieved peripheral services', peripheralData);
+                async (peripheralData: any) => {
+                  console.log(
+                    'Retrieved peripheral services',
+                    JSON.stringify(peripheralData, null, 2),
+                  );
+                  const text = await BleManager.read(
+                    peripheralData.id,
+                    peripheralData.characteristics[
+                      peripheralData.characteristics.length - 1
+                    ].service,
+                    peripheralData.characteristics[
+                      peripheralData.characteristics.length - 1
+                    ].characteristic,
+                  );
+                  const buffer: any = Buffer.from(text);
+                  //const ads = buffer.readUInt8();
+                  const realText = String.fromCharCode(...text);
+                  console.log('real text', realText);
+                  console.log('text', text);
                 },
               );
             }, 900);
