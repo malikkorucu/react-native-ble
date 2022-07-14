@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android warning-mode=all",
-    "ios": "react-native run-ios --device 'Malikkk'",
+    "ios": "react-native run-ios --device 'iPhone 12'",
+    "ios-device": "react-native run-ios --device 'CruzNadin'",
     "pod": "npx pod-install ios",
     "clean:android": "cd android && ./gradlew clean --warning-mode all && cd ..",
     "apk-mac": "cd android && ./gradlew assembleRelease  && cd ..",
