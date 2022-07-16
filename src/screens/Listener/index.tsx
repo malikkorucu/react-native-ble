@@ -4,75 +4,154 @@ import {
   NativeModules,
   PermissionsAndroid,
   Platform,
+  Pressable,
 } from 'react-native';
-import {AppButton, AppScreen, Block, Text} from '@components';
+import {AppButton, AppFlatList, AppScreen, Block, Text} from '@components';
 import BleManager, {Peripheral} from 'react-native-ble-manager';
 import ReactNativeBleAdvertiser from 'tp-rn-ble-advertiser';
+import {COLORS, SIZES} from '@theme';
 
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-const SERVICE_UUID = 'FD05A570-274A-4B1F-A5A3-EB52E5E02B8B';
-const CHARACTERISTIC_UUID = '53447CA9-1E5B-448E-AB7B-BD9438C048AF';
-
-const UUID = 'A6AED81E-3B29-0AF5-D750-E8B495D5FA06';
+const SERVICE_UUID = 'fd05a570-274a-4b1f-a5a3-eb52e5e02b8b';
+const CHARACTERISTIC_UUID = '53447ca9-1e5b-448e-ab7b-bd9438c048af';
 
 const BluetoothListenerPage = () => {
+  const [devices, setDevices] = useState<Peripheral[]>([]);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
   const [peripheralInfoText, setPeripheralInfoText] = useState('');
 
   const retrieveBleValue = async (peripheral: Peripheral): Promise<string> => {
-    return new Promise(resolve => {
-      try {
-        setTimeout(async () => {
-          let returnData = '';
-          await BleManager.retrieveServices(peripheral.id, [SERVICE_UUID]);
-          const readBleData = await BleManager.read(
-            peripheral.id,
-            SERVICE_UUID,
-            CHARACTERISTIC_UUID,
-          );
-          console.log('readBleData: ', readBleData);
-          if (readBleData) returnData = String.fromCharCode(...readBleData);
+    let returnData = '';
+    return new Promise(async resolve => {
+      BleManager.connect(peripheral.id).then(
+        () => {
+          setTimeout(() => {
+            BleManager.retrieveServices(peripheral.id, [SERVICE_UUID]).then(
+              async peripheralInfo => {
+                console.log(
+                  'peripheralInfo',
+                  JSON.stringify(peripheralInfo, null, 2),
+                );
 
-          await BleManager.disconnect(peripheral.id, true);
+                BleManager.read(
+                  peripheral.id,
+                  SERVICE_UUID,
+                  CHARACTERISTIC_UUID,
+                ).then(
+                  readBleData => {
+                    console.log('Read Value: ', readBleData);
+                    if (readBleData)
+                      returnData = String.fromCharCode(...readBleData);
+
+                    resolve(returnData);
+                  },
+                  readErr => {
+                    console.log('Read Service Value Error: ', readErr);
+                    resolve(returnData);
+                  },
+                );
+              },
+              err => {
+                console.log('Retrieve Services Error: ', err);
+                resolve(returnData);
+              },
+            );
+          }, 1000);
+        },
+        connectError => {
+          console.log('Connection Error: ', connectError);
           resolve(returnData);
-        }, 1000);
-      } catch (error) {
-        console.log('Retrieve Services Error: ', error);
-        resolve('');
-      }
+        },
+      );
     });
   };
+
+  // const retrieveBleValue = async (peripheral: Peripheral) => {
+  //   let returnData = '';
+  //   try {
+  //     const isConnected = await BleManager.isPeripheralConnected(
+  //       peripheral.id,
+  //       [SERVICE_UUID],
+  //     );
+  //     if (!isConnected) {
+  //       await BleManager.connect(peripheral.id);
+  //     }
+
+  //     await BleManager.retrieveServices(peripheral.id, [SERVICE_UUID]).then();
+
+  //     const readBleData = await BleManager.read(
+  //       peripheral.id,
+  //       SERVICE_UUID,
+  //       CHARACTERISTIC_UUID,
+  //     );
+  //     console.log('readBleData: ', readBleData);
+  //     if (readBleData) returnData = String.fromCharCode(...readBleData);
+  //   } catch (error) {
+  //     console.log('retrieveBleValue error: ', error);
+  //   }
+  //   return returnData;
+  // };
+
   const getBleData = async (peripheral: Peripheral) => {
     if (!peripheral) return '';
     if (!peripheral?.advertising?.isConnectable) return '';
-    if (!(peripheral?.advertising as any)?.serviceData) return '';
 
-    try {
-      // Try to connect to the peripheral
-      const isConnected = await BleManager.isPeripheralConnected(
-        peripheral.id,
-        [SERVICE_UUID],
-      );
-      if (!isConnected) {
-        await BleManager.connect(peripheral.id);
-      }
-    } catch (error) {
-      console.log('Connection error', error);
-    }
+    // Try to get value from the peripheral
+    const bleValue = await retrieveBleValue(peripheral);
 
-    return await retrieveBleValue(peripheral);
+    // Try to disconnect to the peripheral
+    await BleManager.disconnect(peripheral.id);
+
+    return bleValue;
   };
 
-  const handleDiscoverPeripheral = async (peripheral: Peripheral) => {
+  const handleOnPress = async (peripheral: Peripheral) => {
     const peripheralData = await getBleData(peripheral);
     if (peripheralData) {
       console.log('peripheralData Text: ' + peripheralData);
       setPeripheralInfoText(peripheralData);
     }
+  };
+
+  const handleDiscoverPeripheral = async (peripheral: Peripheral) => {
+    // Needs to stop scanning before we can connect to a peripheral
+    // await BleManager.stopScan();
+    // console.log('Scan stopped...');
+
+    console.log('peripheral: ', JSON.stringify(peripheral, null, 2));
+
+    if (!devices?.find(x => x.id === peripheral.id)) {
+      setDevices([...devices, peripheral]);
+      console.log(
+        'devices: ',
+        JSON.stringify([...devices, peripheral], null, 2),
+      );
+    }
+
+    // const peripheralData = await getBleData(peripheral);
+    // if (peripheralData) {
+    //   console.log('peripheralData Text: ' + peripheralData);
+    //   setPeripheralInfoText(peripheralData);
+    // } else {
+    //   // Needs to start scanning again if we can't find the peripheral service and characteristic
+    //   //await toggleBleScan();
+    //   // BleManager.scan([SERVICE_UUID], 5);
+    //   // console.log('Scan started...');
+    // }
+  };
+
+  const retrieveConnected = async () => {
+    const connectedPeripherals = await BleManager.getConnectedPeripherals([]);
+    setDevices([...connectedPeripherals]);
+  };
+
+  const handleStopScan = () => {
+    setIsScanning(false);
+    console.log('Scan stopped...');
   };
 
   const initializeBle = async () => {
@@ -88,37 +167,66 @@ const BluetoothListenerPage = () => {
     }
 
     ReactNativeBleAdvertiser.initializeBle();
-    BleManager.start({showAlert: false});
+
+    await BleManager.start({showAlert: false});
+    BleManager.checkState();
 
     bleManagerEmitter.addListener(
       'BleManagerDiscoverPeripheral',
       handleDiscoverPeripheral,
     );
+
+    bleManagerEmitter.addListener('BleManagerStopScan', handleStopScan);
   };
 
   const toggleBleScan = async () => {
     setIsScanning(!isScanning);
     if (!isScanning) {
       BleManager.scan([SERVICE_UUID], 5);
+      console.log('Scan started...');
     } else {
       BleManager.stopScan();
+      console.log('Scan stopped...');
     }
   };
 
   const toggleBroadcasting = async () => {
     setIsBroadcasting(!isBroadcasting);
     if (!isBroadcasting) {
-      ReactNativeBleAdvertiser.setData('Hellooo!!! Hear Meeeee !!!!');
+      ReactNativeBleAdvertiser.setData('Selam! PBN Verisi :)');
       ReactNativeBleAdvertiser.startBroadcast();
     } else {
       ReactNativeBleAdvertiser.stopBroadcast();
     }
   };
 
+  const renderItem = ({item}: {item: Peripheral}) => {
+    return (
+      <Pressable onPress={() => handleOnPress(item)}>
+        <Block
+          flex
+          mb={10}
+          px={10}
+          borderRadius={SIZES.radius}
+          bg={COLORS.error}>
+          <Block flex p={10}>
+            <Text color={COLORS.white}>UUID: {item?.id}</Text>
+            {item?.name && <Text color={COLORS.white}>{item?.name}</Text>}
+            <Text color={COLORS.white}>
+              Bağlantı Kurulabilir:{' '}
+              {item?.advertising.isConnectable ? 'Evet' : 'Hayır'}
+            </Text>
+          </Block>
+        </Block>
+      </Pressable>
+    );
+  };
+
   useEffect(() => {
     initializeBle();
     return () => {
       bleManagerEmitter.removeAllListeners('BleManagerDiscoverPeripheral');
+      bleManagerEmitter.removeAllListeners('BleManagerStopScan');
     };
   }, []);
 
@@ -126,7 +234,9 @@ const BluetoothListenerPage = () => {
     <AppScreen>
       <Block pt={10}>
         <AppButton
-          title={'Broadcast Status (' + (isBroadcasting ? 'on' : 'off') + ')'}
+          title={
+            'Veri Yayın Durumu (' + (isBroadcasting ? 'Açık' : 'Kapalı') + ')'
+          }
           onPress={toggleBroadcasting}
           type={'secondary'}
         />
@@ -134,9 +244,31 @@ const BluetoothListenerPage = () => {
 
       <Block pt={10}>
         <AppButton
-          title={'Scan Bluetooth (' + (isScanning ? 'on' : 'off') + ')'}
+          title={
+            'Bluetooth Arama Durumu (' + (isScanning ? 'Açık' : 'Kapalı') + ')'
+          }
           onPress={toggleBleScan}
           type={'primary'}
+        />
+      </Block>
+
+      <Block pt={10}>
+        <AppButton
+          title={'Bağlantı Kurulan Cihazları Getir'}
+          onPress={retrieveConnected}
+          type={'primary'}
+        />
+      </Block>
+
+      <Block pt={10}>
+        <AppFlatList
+          data={devices}
+          ListEmptyComponent={
+            <Block pt={20} center middle>
+              <Text>Cihaz Bulunamadı.</Text>
+            </Block>
+          }
+          renderItem={renderItem}
         />
       </Block>
 
