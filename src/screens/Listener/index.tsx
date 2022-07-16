@@ -167,6 +167,7 @@ const BluetoothListenerPage = () => {
     }
 
     ReactNativeBleAdvertiser.initializeBle();
+    ReactNativeBleAdvertiser.setData('Selam! PBN Verisi :)');
 
     await BleManager.start({showAlert: false});
     BleManager.checkState();
@@ -182,21 +183,28 @@ const BluetoothListenerPage = () => {
   const toggleBleScan = async () => {
     setIsScanning(!isScanning);
     if (!isScanning) {
-      BleManager.scan([SERVICE_UUID], 5);
-      console.log('Scan started...');
+      setTimeout(() => {
+        BleManager.scan([SERVICE_UUID], 10);
+        console.log('Scan started...');
+      }, 1000);
     } else {
-      BleManager.stopScan();
-      console.log('Scan stopped...');
+      setTimeout(() => {
+        BleManager.stopScan();
+        console.log('Scan stopped...');
+      }, 1000);
     }
   };
 
   const toggleBroadcasting = async () => {
     setIsBroadcasting(!isBroadcasting);
     if (!isBroadcasting) {
-      ReactNativeBleAdvertiser.setData('Selam! PBN Verisi :)');
-      ReactNativeBleAdvertiser.startBroadcast();
+      setTimeout(() => {
+        ReactNativeBleAdvertiser.startBroadcast();
+      }, 1000);
     } else {
-      ReactNativeBleAdvertiser.stopBroadcast();
+      setTimeout(() => {
+        ReactNativeBleAdvertiser.stopBroadcast();
+      }, 1000);
     }
   };
 
