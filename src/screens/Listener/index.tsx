@@ -14,8 +14,8 @@ import {COLORS, SIZES} from '@theme';
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-const SERVICE_UUID = 'fd05a570-274a-4b1f-a5a3-eb52e5e02b8b';
-const CHARACTERISTIC_UUID = '53447ca9-1e5b-448e-ab7b-bd9438c048af';
+const SERVICE_UUID = '18eba6c4-4876-4920-83d4-1839005c9724';
+const CHARACTERISTIC_UUID = '52d2cdd6-7204-4ad7-bb58-93b878c33f87';
 
 const BluetoothListenerPage = () => {
   const [devices, setDevices] = useState<Peripheral[]>([]);
