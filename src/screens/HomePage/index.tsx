@@ -166,6 +166,15 @@ const HomePage = ({navigation}: any) => {
           onPress={() => navigation.navigate(Routes.BLUETOOTH_LISTENER_SCREEN)}
         />
 
+        <AppButton
+          mb={10}
+          type="primary"
+          title={'Bluetooth Listener Plx'}
+          onPress={() =>
+            navigation.navigate(Routes.BLUETOOTH_LISTENER_PLX_SCREEN)
+          }
+        />
+
         <Block marginTop={20} center middle>
           <AppIcon name="camera" size={30} color="#900" />
         </Block>

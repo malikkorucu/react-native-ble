@@ -2,9 +2,9 @@ import {IScreen} from '../Models/IScreen';
 import {
   Bluetooth,
   BluetoothListenerPage,
+  BluetoothListenerPlxPage,
   FetchDataPage,
   FormPage,
-  GoogleNearbyPage,
   HomePage,
 } from '@screens';
 import routes from '../../Routes';
@@ -38,6 +38,12 @@ const Screens = [
     title: 'Bluetooth Listener Example',
     name: routes.BLUETOOTH_LISTENER_SCREEN,
     component: BluetoothListenerPage,
+    headerShown: true,
+  },
+  {
+    title: 'Bluetooth Listener Plx Example',
+    name: routes.BLUETOOTH_LISTENER_PLX_SCREEN,
+    component: BluetoothListenerPlxPage,
     headerShown: true,
   },
 ] as Array<IScreen>;
